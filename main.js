@@ -4,7 +4,6 @@ import WebGL from 'three/addons/capabilities/WebGL.js'
 import Bear from './bear.js'
 
 //  Main function for a video game that I am developing
-//
 function main() {
   //  Creating Map for Scene
   const canvas = document.querySelector('#c')
@@ -50,7 +49,6 @@ function main() {
   const ambientLight = new THREE.AmbientLight(0x404040, 15)
   scene.add(ambientLight)
 
-  //
   const boxWidth = 1
   const boxHeight = 1
   const boxDepth = 1
@@ -156,7 +154,6 @@ function main() {
       character.stopWalking()
   })
 
-  //If first tween has finished, then
   //From https://threejs.org/manual/#en/responsive
   function render(time) {
     TWEEN.update(time)
