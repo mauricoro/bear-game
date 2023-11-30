@@ -2,6 +2,8 @@ import * as THREE from 'three'
 import * as TWEEN from '@tweenjs/tween.js'
 import WebGL from 'three/addons/capabilities/WebGL.js'
 import Bear from './bear.js'
+import Chunk from './chunk.js'
+import StartingArea from './starting-area.js'
 
 //  Main function for a video game that I am developing
 function main() {
@@ -19,9 +21,14 @@ function main() {
   const far = 50
 
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-  camera.position.set(9, 9, 2)
-  camera.lookAt(0, 0, 0)
+  // camera.position.set(9, 9, 2)
+  // camera.position.set(5, 6, 1)
+  // camera.lookAt(0, 0, 0)
 
+  // camera.position.set(3, 6, -1)
+  // camera.lookAt(-2, 0, -2)
+  camera.position.set(2, 6, -3)
+  camera.lookAt(-2, 0, -5)
   const scene = new THREE.Scene()
 
   const color = 0xffffff
@@ -49,46 +56,64 @@ function main() {
   const ambientLight = new THREE.AmbientLight(0x404040, 15)
   scene.add(ambientLight)
 
-  const boxWidth = 1
-  const boxHeight = 1
-  const boxDepth = 1
-  const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth)
+  // Terrain
+  // const boxWidth = 1
+  // const boxHeight = 1
+  // const boxDepth = 1
+  // const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth)
 
-  function makeInstance(geometry, color, x, y, z) {
-    const material = new THREE.MeshPhongMaterial({ color })
+  // function makeInstance(geometry, color, x, y, z) {
+  //   const material = new THREE.MeshPhongMaterial({ color })
 
-    const cube = new THREE.Mesh(geometry, material)
-    if (y > 0) {
-      cube.castShadow = true
-    }
-    cube.receiveShadow = true
-    scene.add(cube)
+  //   const cube = new THREE.Mesh(geometry, material)
+  //   if (y > 0) {
+  //     cube.castShadow = true
+  //   }
+  //   cube.receiveShadow = true
+  //   scene.add(cube)
 
-    // cube.position.x = x
-    console.log(x, y, z)
-    cube.position.set(x, y, z)
+  //   // cube.position.x = x
+  //   cube.position.set(x, y, z)
 
-    return cube
-  }
+  //   return cube
+  // }
 
-  let cubes = []
-  for (let i = -12; i < 7; i++) {
-    //16
-    for (let j = -37; j < 16; j++) {
-      //32
-      cubes.push(makeInstance(geometry, 0x8dc24d, i, 0, j))
-      if (i == 6) {
-        cubes.push(makeInstance(geometry, 0x8dc24d, i, -1, j))
-        cubes.push(makeInstance(geometry, 0x54575c, i, -2, j))
-        cubes.push(makeInstance(geometry, 0x54575c, i, -3, j))
-        cubes.push(makeInstance(geometry, 0x54575c, i, -4, j))
-      }
-    }
-  }
+  // let cubes = []
+  // for (let i = 0; i > -8; i--) {
+  //   //16
+  //   for (let j = 0; j > -8; j--) {
+  //     //32
+  //     cubes.push(makeInstance(geometry, 0x8dc24d, i, 0, j))
+  //     if (i == 0) {
+  //       cubes.push(makeInstance(geometry, 0x8dc24d, i, -1, j))
+  //       cubes.push(makeInstance(geometry, 0x54575c, i, -2, j))
+  //       cubes.push(makeInstance(geometry, 0x54575c, i, -3, j))
+  //       cubes.push(makeInstance(geometry, 0x54575c, i, -4, j))
+  //     }
+  //   }
+  // }
+  const starting = new StartingArea(scene)
+  starting.addToScene(scene)
+  const testing = new Chunk(scene)
+  testing.addToScene(scene)
+
+  // let matrix = []
+  // for (let i = 0; i < 8; i++) {
+  //   matrix[i] = []
+  //   for (let j = 0; j < 8; j++) {
+  //     matrix[i][j] = 0
+  //   }
+  // }
+  // matrix[3][4] = 2
+  let matrix = starting.getMatrix()
+
+  matrix = matrix.concat(testing.getMatrix().map((row) => [...row]))
+  // console.log(matrix)
 
   //bear
   const character = new Bear()
   character.addToScene(scene)
+  //  console.log(character.getMesh().position)
 
   //From https://threejs.org/manual/#en/responsive
   function resizeRendererToDisplaySize(renderer) {
@@ -112,10 +137,11 @@ function main() {
     }
   }
 
-  let w = new Movement(false, -0.04, 0, Math.PI)
-  let a = new Movement(false, 0, 0.04, (Math.PI * 3) / 2)
-  let s = new Movement(false, 0.04, 0, Math.PI * 2)
-  let d = new Movement(false, 0, -0.04, Math.PI / 2)
+  //originall 0.04 before size swap
+  let w = new Movement(false, -0.03, 0, Math.PI)
+  let a = new Movement(false, 0, 0.03, (Math.PI * 3) / 2)
+  let s = new Movement(false, 0.03, 0, Math.PI * 2)
+  let d = new Movement(false, 0, -0.03, Math.PI / 2)
   let map = new Map()
   map.set('KeyW', w)
   map.set('KeyA', a)
@@ -124,17 +150,31 @@ function main() {
 
   let keysUp = true
 
+  //test for dash valid
+  let dashmultiplier = 2.4
+  let treeuuid = false
   window.addEventListener('keydown', (event) => {
     if (event.code == 'Space') {
       if (character.notDashing()) {
-        character.startDash()
+        dashmultiplier = validDash(matrix, character)
+        treeuuid = treeInPath(matrix, character, dashmultiplier)
+        console.log(treeuuid)
+        if (treeuuid) {
+          const foundGroup = scene.getObjectByProperty('uuid', treeuuid)
+          scene.remove(foundGroup)
+        }
+        // console.log(dashmultiplier)
+        // const foundGroup = scene.getObjectByProperty('uuid', 3)
+        // scene.remove(foundGroup)
+        // console.log(scene.getObjectByName('testname'))
+        character.startDash(dashmultiplier)
       }
     }
     map.forEach((value, key) => {
       if (event.code == key) {
         value.keyDown = true
         character.startWalking()
-
+        // console.log(character.getMesh().position)
         character.endDash()
       }
     })
@@ -160,27 +200,33 @@ function main() {
     time *= 0.001 // convert time to seconds
     let count = 0
     let rotations = []
-
+    let mesh = character.getMesh()
     //Update Camera Position
     // camera.position.set(
     //   10 + character.getMesh().position.x,
     //   9 + character.getMesh().position.y,
     //   2 + character.getMesh().position.z
-    // )
+    //
 
     // Camera on rails
-    // camera.position.set(10, 9, 2 - time * 0.5)
+    // camera.position.set(5, 6, 1 - time * 0.2)
     // camera.lookAt(0 - time, 0, 0 - time)
     map.forEach((value, key) => {
       if (value.keyDown == true) {
         if (
-          character.getMesh().position.x + value.xVelocity < 6 &&
-          character.getMesh().position.x + value.xVelocity > -12 &&
-          character.getMesh().position.z + value.zVelocity < 12 &&
-          character.getMesh().position.z + value.zVelocity > -18
+          validPosition(
+            mesh.position.x + value.xVelocity * 10,
+            mesh.position.z + value.zVelocity * 10,
+            matrix
+          )
         ) {
-          character.getMesh().position.x += value.xVelocity
-          character.getMesh().position.z += value.zVelocity
+          console.log(
+            parseInt(Math.round(-1 * (mesh.position.x + value.xVelocity))) +
+              ' ' +
+              parseInt(Math.round(-1 * (mesh.position.z + value.zVelocity)))
+          )
+          mesh.position.x += value.xVelocity
+          mesh.position.z += value.zVelocity
         }
 
         rotations.push(value.yRotation)
@@ -199,7 +245,7 @@ function main() {
         sum = 0
       }
 
-      character.getMesh().rotation.y = sum / rotations.length
+      mesh.rotation.y = sum / rotations.length
       character.setRotation(sum / rotations.length)
     }
 
@@ -216,4 +262,64 @@ function main() {
   requestAnimationFrame(render)
 }
 
+function validDash(matrix, entity) {
+  let mesh = entity.getMesh()
+  let x = mesh.position.x
+  let z = mesh.position.z
+  const multipliers = [0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8]
+
+  let rotation = entity.getRotation()
+
+  for (let i = 1; i < 8; i++) {
+    if (
+      !validPosition(
+        x + multipliers[i] * Math.cos(rotation),
+        z + multipliers[i] * -1 * Math.sin(rotation),
+        matrix
+      ) ||
+      i == 7
+    ) {
+      return multipliers[i - 1]
+    }
+  }
+}
+
+function treeInPath(matrix, entity, dashmultiplier) {
+  let mesh = entity.getMesh()
+  let x = mesh.position.x
+  let z = mesh.position.z
+  const multipliers = [0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8]
+
+  let rotation = entity.getRotation()
+
+  for (const multiplier of multipliers) {
+    if (multiplier > dashmultiplier) {
+      return false
+    } else if (
+      matrix[Math.round(-1 * (z + multiplier * -1 * Math.sin(rotation)))][
+        Math.round(-1 * (x + multiplier * Math.cos(rotation)))
+      ] == 2
+    ) {
+      return Math.round(-1 * (z + multiplier * -1 * Math.sin(rotation)))
+    }
+  }
+}
+
+function validTree(x, z, matrix) {
+  if (matrix[Math.round(-1 * z)][Math.round(-1 * x)] != 2) return true
+  else return false
+}
+function validPosition(x, z, matrix) {
+  if (
+    Math.round(-1 * x) < 8 &&
+    Math.round(-1 * x) > -1 &&
+    Math.round(-1 * z) < matrix.length &&
+    Math.round(-1 * z) > -1 &&
+    matrix[Math.round(-1 * z)][Math.round(-1 * x)] == 0
+  )
+    return true
+  else return false
+}
+
+function getMultiplier(matrix, entity) {}
 main()

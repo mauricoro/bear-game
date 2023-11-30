@@ -55,7 +55,7 @@ class Bear {
         )
       ) {
         this.bodyTweens[part].to(
-          { x: this.bodyGroups['body'].position.x + 0.15 },
+          { x: this.bodyGroups['body'].position.x + 0.15 }, //originally 0.15 for both before the size swap
           300
         )
       } else if (
@@ -101,11 +101,15 @@ class Bear {
 
     //  Adds different meshes to each body part
     const addPart = (x, y, z, width, height, depth, color, group) => {
-      const partGeometry = new THREE.BoxGeometry(width, height, depth)
+      const partGeometry = new THREE.BoxGeometry(
+        (width * 2) / 3,
+        (height * 2) / 3,
+        (depth * 2) / 3
+      )
       const partColor = new THREE.MeshPhongMaterial({ color: color })
       const part = new THREE.Mesh(partGeometry, partColor)
       part.castShadow = true
-      part.position.set(x, y, z)
+      part.position.set((x * 2) / 3, (y * 2) / 3, (z * 2) / 3)
       this.bodyGroups[group].add(part)
     }
 
@@ -146,6 +150,7 @@ class Bear {
     //  Legs
     addPart(0, 0.9, 0.2, 0.2, 0.7, 0.2, mediumColor, 'leftLeg')
     addPart(0, 0.9, -0.2, 0.2, 0.7, 0.2, mediumColor, 'rightLeg')
+    this.mesh.position.set(-3, 0.14, -3)
   }
 
   //  Additional helper methods
@@ -169,15 +174,17 @@ class Bear {
   }
 
   //  Movement related methods
-  startDash() {
+  startDash(multiplier = 2.4) {
+    console.log(this.mesh.position.x + ' ' + this.mesh.position.z)
     this.tween = new TWEEN.Tween({
       x: this.mesh.position.x,
       z: this.mesh.position.z,
     })
       .to(
         {
-          x: this.mesh.position.x + 3 * Math.cos(this.rot),
-          z: this.mesh.position.z + 3 * -1 * Math.sin(this.rot),
+          //  originally 3 before size swap
+          x: this.mesh.position.x + multiplier * Math.cos(this.rot),
+          z: this.mesh.position.z + multiplier * -1 * Math.sin(this.rot),
         },
         800
       )
