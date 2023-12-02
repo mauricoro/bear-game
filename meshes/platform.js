@@ -1,35 +1,31 @@
 import * as THREE from 'three'
-class Tree {
-  constructor(id) {
+class Platform {
+  constructor(id, z) {
     //  Groups body parts for organization and movement
     this.mesh = new THREE.Group()
     this.mesh.uuid = id
-    const groupNames = ['trunk', 'leaves']
-    this.groups = {}
+    this.mesh.z = z
 
-    groupNames.forEach((name) => {
-      this.groups[name] = new THREE.Group()
-      this.mesh.add(this.groups[name])
-    })
-
-    const addPart = (x, y, z, width, height, depth, color, group) => {
+    const addPart = (x, y, z, width, height, depth, color) => {
       const partGeometry = new THREE.BoxGeometry(width, height, depth)
       const partColor = new THREE.MeshPhongMaterial({ color: color })
       const part = new THREE.Mesh(partGeometry, partColor)
       part.castShadow = true
       part.position.set(x, y, z)
-      this.groups[group].add(part)
+      this.mesh.add(part)
     }
 
     //  Color variables
-    const darkColor = 0x432616
+    const plankColor = 0x8c6429
     const leavesColor = 0x087830
 
     //  Trunk
-    addPart(0, 1.5, 0, 0.7, 2, 0.7, darkColor, 'trunk')
-
-    //  Leaves
-    addPart(0, 3.2, 0, 1.5, 1.3, 1.5, leavesColor, 'leaves')
+    addPart(0, 0.5, 0, 0.1, 0.1, 1, plankColor)
+    addPart(0.2, 0.5, 0, 0.1, 0.1, 1, plankColor)
+    addPart(-0.2, 0.5, 0, 0.1, 0.1, 1, plankColor)
+    addPart(0.4, 0.5, 0, 0.1, 0.1, 1, plankColor)
+    addPart(-0.4, 0.5, 0, 0.1, 0.1, 1, plankColor)
+    this.mesh.position.set(-1 * z, 0, -1 * id)
 
     // this.mesh.position.set(-3, 0.14, -3)
   }
@@ -55,4 +51,4 @@ class Tree {
   }
 }
 
-export default Tree
+export default Platform
