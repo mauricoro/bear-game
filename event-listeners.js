@@ -1,5 +1,8 @@
 import Platform from './meshes/platform.js'
-export function setupListeners(character, matrix, scene) {
+import Terrain from './terrain.js'
+import Bear from './meshes/bear.js'
+import { AudioContext } from 'three'
+export function setupListeners(character, matrix, scene, movementEnabled) {
   class Movement {
     constructor(keyDown, xVelocity, zVelocity, yRotation) {
       this.keyDown = keyDown
@@ -19,40 +22,43 @@ export function setupListeners(character, matrix, scene) {
   map.set('KeyS', s)
   map.set('KeyD', d)
 
-  let keysUp = true
-
   //test for dash valid
   let dashmultiplier = 2.4
-  let treeuuid = false
 
   //platform identifier
   let holdingPlatform = false
 
   window.addEventListener('keydown', (event) => {
-    if (event.code == 'Space') {
+    let characterRotation = character.getRotation()
+    let [x, z] = character.getInFrontMatrix()
+    let [cx, cz] = character.getPositionMatrix()
+
+    if (event.code == 'Space' && movementEnabled[0]) {
       if (character.notDashing()) {
-        dashmultiplier = validDash(matrix, character)
-        treeuuid = treeInPath(matrix, character, dashmultiplier)
-        console.log(treeuuid)
-        if (treeuuid) {
-          const foundGroup = scene.getObjectByProperty('uuid', treeuuid)
-          console.log(matrix[treeuuid][foundGroup.z])
-          matrix[treeuuid][foundGroup.z] = 3
-          let zvalue = foundGroup.z
-          console.log(treeuuid + ' ' + foundGroup.z)
+        dashmultiplier = validDash(matrix.getMatrix(), character)
+        let [treez, treex] = treeInPath(
+          matrix.getMatrix(),
+          character,
+          dashmultiplier
+        )
+        if (treez) {
+          const foundGroup = scene.getObjectByName(
+            'z' + String(treez) + 'x' + String(treex)
+          )
+          matrix.setValue(treez, treex, 3)
           scene.remove(foundGroup)
-          let testingplatform = new Platform(treeuuid, zvalue)
+          let testingplatform = new Platform(
+            'z' + String(treez) + 'x' + String(treex),
+            treez,
+            treex
+          )
           testingplatform.addToScene(scene)
         }
-        // console.log(dashmultiplier)
-        // const foundGroup = scene.getObjectByProperty('uuid', 3)
-        // scene.remove(foundGroup)
-        // console.log(scene.getObjectByName('testname'))
         character.startDash(dashmultiplier)
       }
     }
     map.forEach((value, key) => {
-      if (event.code == key) {
+      if (event.code == key && movementEnabled[0]) {
         value.keyDown = true
         character.startWalking()
         // console.log(character.getMesh().position)
@@ -60,15 +66,39 @@ export function setupListeners(character, matrix, scene) {
       }
     })
 
-    if (event.code == 'KeyP') {
+    if (event.code == 'KeyP' && movementEnabled[0]) {
       if (holdingPlatform) {
-        if (platformLocationValid()) {
-          placePlatform()
+        if (platformLocationValid(x, z, matrix.getMatrix())) {
+          // if (matrix[z][x] == 1) {
+          if (matrix.getMatrix()[z][x] == 1) {
+            // matrix[z][x] = 0
+            matrix.setValue(z, x, 0)
+            // } else matrix[z][x] = 3
+          } else matrix.setValue(z, x, 3)
+          character.removePlatform()
           holdingPlatform = false
+          let newPlatform = new Platform(
+            'z' + String(z) + 'x' + String(x),
+            z,
+            x
+          )
+          newPlatform.addToScene(scene)
         }
       } else {
-        if (platformInFront()) {
-          updateLocation()
+        if (
+          platformInFront(x, z, characterRotation, matrix.getMatrix(), cx, cz)
+        ) {
+          holdingPlatform = true
+          console.log('Platform Picked Up')
+          character.givePlatform()
+          let foundPlatform = scene.getObjectByName(
+            'z' + String(z) + 'x' + String(x)
+          )
+          scene.remove(foundPlatform)
+          // matrix[z][x] = 0
+          matrix.setValue(z, x, 0)
+
+          // updateLocation()
         }
       }
     }
@@ -123,13 +153,16 @@ function treeInPath(matrix, entity, dashmultiplier) {
 
   for (const multiplier of multipliers) {
     if (multiplier > dashmultiplier) {
-      return false
+      return [false, false]
     } else if (
       matrix[Math.round(-1 * (z + multiplier * -1 * Math.sin(rotation)))][
         Math.round(-1 * (x + multiplier * Math.cos(rotation)))
       ] == 2
     ) {
-      return Math.round(-1 * (z + multiplier * -1 * Math.sin(rotation)))
+      return [
+        Math.round(-1 * (z + multiplier * -1 * Math.sin(rotation))),
+        Math.round(-1 * (x + multiplier * Math.cos(rotation))),
+      ]
     }
   }
 }
@@ -143,6 +176,20 @@ function validDashPosition(x, z, matrix) {
     matrix[Math.round(-1 * z)][Math.round(-1 * x)] != 1
   ) {
     // matrix[Math.round(-1 * z)][Math.round(-1 * x)] = 0
+    return true
+  } else return false
+}
+
+function platformInFront(x, z, rotation, matrix, cx, cz) {
+  // console.log('position' + cz + ' ' + cx)
+  // console.log('in front' + z + ' ' + x)
+  // console.log(matrix)
+  if (matrix[z][x] == 3) {
+    return true
+  } else return false
+}
+function platformLocationValid(x, z, matrix) {
+  if (matrix[z][x] != 3) {
     return true
   } else return false
 }

@@ -35,7 +35,9 @@ class Chunk {
           this.matrix[i][j] = 1
         } else if (i == treeIndex && j == treeIndex) {
           this.matrix[i][j] = 2
-          let startingTree = new Tree(i + position, j)
+          let startingTree = new Tree(
+            'z' + String(i + position) + 'x' + String(j)
+          )
           startingTree.setPosition(-1 * j, 0, -1 * (i + position))
           startingTree.addToScene(scene)
         } else {

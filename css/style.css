@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'visitor';
+  src: url('visitor1.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -13,3 +20,63 @@ canvas {
   height: 100%;
   display: block;
 }
+
+#overlay {
+  position: absolute;
+  /* top: 10px;
+  left: 10px; */
+  top: 3%;
+  left: 5%;
+  transform: translate(-50%, -50%);
+  color: black;
+  font-family: 'visitor', Arial, sans-serif;
+  font-size: 35px;
+  /* z-index: 100; */
+  /* transition: top 5s, left 5s; */
+}
+
+#title {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: black;
+  font-family: 'visitor', Arial, sans-serif;
+  font-size: 100px;
+  /* z-index: 100; */
+}
+
+#title-button {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: black;
+  font-family: 'visitor', Arial, sans-serif;
+  font-size: 30px;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 5px;
+  /* z-index: 100; */
+}
+
+.hidden {
+  opacity: 0;
+}
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.fade-in {
+  opacity: 1;
+  transition: opacity 1s ease-in-out;
+}
+
+/* .game-over {
+  background-color: lightblue;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 1s, font-size 1s;
+} */

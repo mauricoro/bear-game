@@ -1,10 +1,9 @@
 import * as THREE from 'three'
 class Tree {
-  constructor(id, z, scene) {
+  constructor(name) {
     //  Groups body parts for organization and movement
     this.mesh = new THREE.Group()
-    this.mesh.uuid = id
-    this.mesh.z = z
+    this.mesh.name = name
     const groupNames = ['trunk', 'leaves']
     this.groups = {}
 

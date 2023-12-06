@@ -22,11 +22,11 @@ class StartingArea {
     for (let i = 0; i < 8; i++) {
       this.matrix[i] = []
       for (let j = 0; j < 8; j++) {
-        if (i == 3 && j == 5) {
+        if (i == 5 && j == 5) {
           //  Creates the first tree next to the player
           this.matrix[i][j] = 2
-          let startingTree = new Tree(i, 5)
-          startingTree.setPosition(-5, 0, -3)
+          let startingTree = new Tree('z' + String(i) + 'x' + String(j))
+          startingTree.setPosition(-j, 0, -i)
           startingTree.addToScene(scene)
         } else {
           this.matrix[i][j] = 0

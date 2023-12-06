@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import * as TWEEN from '@tweenjs/tween.js'
-
+import Platform from './platform.js'
 //  OVERVIEW
 //  This is a class which represents the player character within a video game and allows for it to be animated as it moves around.
 //  Because this utilizes 3js and tweenjs there are many reference to meshes and tweens.
@@ -23,6 +23,11 @@ class Bear {
     ]
     this.bodyGroups = {}
     this.bodyTweens = {}
+
+    //  For showing the platform
+    this.platform = new Platform(0, 0)
+    this.platform.setPosition(1, 0.5, 0)
+    this.platformMesh = this.platform.getMesh()
 
     //  Adding meshes and default tweens to each body part to control and style individually.
     //  A "start" and "end" tweens are needed for each part to complete an animation loop.
@@ -150,7 +155,9 @@ class Bear {
     //  Legs
     addPart(0, 0.9, 0.2, 0.2, 0.7, 0.2, mediumColor, 'leftLeg')
     addPart(0, 0.9, -0.2, 0.2, 0.7, 0.2, mediumColor, 'rightLeg')
-    this.mesh.position.set(-3, 0.14, -3)
+    // this.mesh.position.set(-3, 0.14, -3)
+    this.mesh.position.set(-3, 0.14, 0)
+    this.mesh.rotation.y = Math.PI / 2
   }
 
   //  Additional helper methods
@@ -173,9 +180,33 @@ class Bear {
     return this.rot
   }
 
+  getPosition() {
+    return [this.mesh.position.x, this.mesh.position.y, this.mesh.position.z]
+  }
+
+  getPositionMatrix() {
+    return [
+      parseInt(Math.round(-1 * this.mesh.position.x)),
+      parseInt(Math.round(-1 * this.mesh.position.z)),
+    ]
+  }
+
+  getInFrontMatrix() {
+    return [
+      parseInt(Math.round(-1 * (this.mesh.position.x + Math.cos(this.rot)))),
+      parseInt(
+        Math.round(-1 * (this.mesh.position.z + -1 * Math.sin(this.rot)))
+      ),
+    ]
+  }
+
+  getDistance() {
+    return parseInt(Math.round(-1 * this.mesh.position.z))
+  }
+
   //  Movement related methods
   startDash(multiplier = 2.4) {
-    console.log(this.mesh.position.x + ' ' + this.mesh.position.z)
+    // console.log(this.mesh.position.x + ' ' + this.mesh.position.z)
     this.tween = new TWEEN.Tween({
       x: this.mesh.position.x,
       z: this.mesh.position.z,
@@ -236,6 +267,14 @@ class Bear {
     this.bodyGroups['rightLeg'].position.x = this.bodyGroups['body'].position.x
     this.bodyGroups['leftArm'].position.x = this.bodyGroups['body'].position.x
     this.bodyGroups['rightArm'].position.x = this.bodyGroups['body'].position.x
+  }
+
+  //Platform Methods
+  givePlatform() {
+    this.mesh.add(this.platformMesh)
+  }
+  removePlatform() {
+    this.mesh.remove(this.platformMesh)
   }
 }
 

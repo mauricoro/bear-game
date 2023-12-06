@@ -16,3 +16,23 @@ export function terrain() {
 
   return [geometries, materials]
 }
+
+///Matrix goes here
+class Terrain {
+  constructor(matrix) {
+    this.matrix = matrix
+  }
+  append(newMatrix) {
+    this.matrix = this.matrix.concat(newMatrix.map((row) => [...row]))
+  }
+
+  getMatrix() {
+    return this.matrix
+  }
+
+  setValue(z, x, value) {
+    this.matrix[z][x] = value
+  }
+}
+
+export default Terrain

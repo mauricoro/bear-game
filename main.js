@@ -3,15 +3,16 @@ import WebGL from 'three/addons/capabilities/WebGL.js'
 import Bear from './meshes/bear.js'
 import Chunk from './meshes/chunk.js'
 import StartingArea from './meshes/starting-area.js'
-
+import Terrain from './terrain.js'
 import { setup } from './scene-setup.js'
 import { terrain } from './terrain.js'
 import { setupListeners } from './event-listeners.js'
 
 //  Main function for a video game that I am developing
+
 function main() {
   //  Creating Map for Scene
-  const [camera, renderer, scene] = setup()
+  let [camera, renderer, scene, light, movementEnabled] = setup()
   const [geometries, materials] = terrain()
   const starting = new StartingArea(scene, geometries, materials)
   const chunk1 = new Chunk(scene, 8, geometries, materials)
@@ -20,11 +21,11 @@ function main() {
   const chunk4 = new Chunk(scene, 32, geometries, materials)
 
   //  Initializing matrix
-  let matrix = starting.getMatrix()
-  matrix = matrix.concat(chunk1.getMatrix().map((row) => [...row]))
-  matrix = matrix.concat(chunk2.getMatrix().map((row) => [...row]))
-  matrix = matrix.concat(chunk3.getMatrix().map((row) => [...row]))
-  matrix = matrix.concat(chunk4.getMatrix().map((row) => [...row]))
+  let matrix = new Terrain(starting.getMatrix())
+  matrix.append(chunk1.getMatrix())
+  matrix.append(chunk2.getMatrix())
+  matrix.append(chunk3.getMatrix())
+  matrix.append(chunk4.getMatrix())
 
   //  Creating player character
   const character = new Bear()
@@ -43,16 +44,27 @@ function main() {
     return needResize
   }
 
-  class Movement {
-    constructor(keyDown, xVelocity, zVelocity, yRotation) {
-      this.keyDown = keyDown
-      this.xVelocity = xVelocity
-      this.zVelocity = zVelocity
-      this.yRotation = yRotation
-    }
-  }
+  const [w, a, s, d, map] = setupListeners(
+    character,
+    matrix,
+    scene,
+    movementEnabled
+  )
 
-  const [w, a, s, d, map] = setupListeners(character, matrix, scene)
+  let distanceEdge = 32
+  let cameraPosition = -4
+  let cameraSpeed = 0.8
+  let lastTime = 0
+
+  //Score
+  const score = document.querySelector('#overlay')
+  score.textContent = 'test1'
+  let distanceScore = 0
+  let gameOver = false
+
+  //Light target
+  scene.add(light.target)
+  light.target = character.getMesh()
 
   //From https://threejs.org/manual/#en/responsive
   function render(time) {
@@ -61,9 +73,53 @@ function main() {
     let rotations = []
     let mesh = character.getMesh()
 
-    // Camera on rails
-    // camera.position.set(5, 6, 1 - time * 0.2)
-    // camera.lookAt(0 - time, 0, 0 - time)
+    if (movementEnabled[0] && lastTime == 0) {
+      lastTime = time
+      score.classList.add('fade-in')
+    }
+    // Render new chunks once distance is close
+    if (distanceEdge + camera.position.z < 21) {
+      console.log('increasing')
+      cameraPosition = cameraPosition - (time - lastTime) * cameraSpeed
+      lastTime = time
+      cameraSpeed = cameraSpeed + 0.05
+      distanceEdge += 8
+      let newChunk = new Chunk(scene, distanceEdge, geometries, materials)
+      matrix.append(newChunk.getMatrix())
+    }
+
+    //  Score
+    distanceScore = Math.max(distanceScore, character.getDistance())
+    // score.textContent = Math.round(time)
+    score.textContent = 'Score: ' + distanceScore
+    if (gameOver) {
+      movementEnabled[0] = false
+    }
+    //  Update Light Position Based on Character
+    const [bx, by, bz] = character.getPosition()
+    if (bz - camera.position.z > 10) {
+      gameOver = true
+      console.log('gameover')
+      // score.classList.add('game-over')
+      score.style.left = '50%'
+      score.style.top = '40%'
+      score.style.transform = 'translate(-50%, -50%)'
+      score.style.transition = 'top 2s, left 2s'
+      // score.style.fontSize ='100px'
+    }
+
+    // Update Light Position Based on Character
+    //  Camera on rails
+    if (movementEnabled[0]) {
+      light.position.set(bx + 6, 20, bz - 20)
+      camera.position.set(
+        2,
+        6,
+        cameraPosition - (time - lastTime) * cameraSpeed
+      )
+    }
+    // camera.position.set(2, 6, -3)
+
     map.forEach((value, key) => {
       if (value.keyDown == true) {
         if (
@@ -73,17 +129,6 @@ function main() {
             matrix
           )
         ) {
-          console.log(
-            mesh.position.x +
-              value.xVelocity +
-              ' ' +
-              mesh.position.z +
-              value.zVelocity +
-              ' ' +
-              parseInt(Math.round(-1 * (mesh.position.x + value.xVelocity))) +
-              ' ' +
-              parseInt(Math.round(-1 * (mesh.position.z + value.zVelocity)))
-          )
           mesh.position.x += value.xVelocity
           mesh.position.z += value.zVelocity
         }
@@ -105,6 +150,7 @@ function main() {
       }
 
       mesh.rotation.y = sum / rotations.length
+      // console.log(sum / rotations.length)
       character.setRotation(sum / rotations.length)
     }
 
@@ -125,9 +171,9 @@ function validPosition(x, z, matrix) {
   if (
     Math.round(-1 * x) < 8 &&
     Math.round(-1 * x) > -1 &&
-    Math.round(-1 * z) < matrix.length &&
+    Math.round(-1 * z) < matrix.getMatrix().length &&
     Math.round(-1 * z) > -1 &&
-    matrix[Math.round(-1 * z)][Math.round(-1 * x)] == 0
+    matrix.getMatrix()[Math.round(-1 * z)][Math.round(-1 * x)] == 0
   )
     return true
   else return false

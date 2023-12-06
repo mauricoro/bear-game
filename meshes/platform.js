@@ -1,9 +1,9 @@
 import * as THREE from 'three'
 class Platform {
-  constructor(id, z) {
+  constructor(name, x, z) {
     //  Groups body parts for organization and movement
     this.mesh = new THREE.Group()
-    this.mesh.uuid = id
+    this.mesh.name = name
     this.mesh.z = z
 
     const addPart = (x, y, z, width, height, depth, color) => {
@@ -25,7 +25,7 @@ class Platform {
     addPart(-0.2, 0.5, 0, 0.1, 0.1, 1, plankColor)
     addPart(0.4, 0.5, 0, 0.1, 0.1, 1, plankColor)
     addPart(-0.4, 0.5, 0, 0.1, 0.1, 1, plankColor)
-    this.mesh.position.set(-1 * z, 0, -1 * id)
+    this.mesh.position.set(-1 * z, 0, -1 * x)
 
     // this.mesh.position.set(-3, 0.14, -3)
   }
