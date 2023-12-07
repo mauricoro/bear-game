@@ -1,4 +1,5 @@
-import * as THREE from 'three'
+// import * as THREE from 'three'
+import * as THREE from '../libraries/three/build/three.module.js'
 class Tree {
   constructor(name) {
     //  Groups body parts for organization and movement

@@ -1,5 +1,7 @@
-import * as THREE from 'three'
-import * as TWEEN from '@tweenjs/tween.js'
+// import * as THREE from 'three'
+import * as THREE from './libraries/three/build/three.module.js'
+// import * as TWEEN from '@tweenjs/tween.js'
+import * as TWEEN from './libraries/@tweenjs/tween.js'
 
 export function setup() {
   //  Creating Map for Scene

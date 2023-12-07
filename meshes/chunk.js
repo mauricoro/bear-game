@@ -1,4 +1,5 @@
-import * as THREE from 'three'
+// import * as THREE from 'three'
+import * as THREE from '../libraries/three/build/three.module.js'
 import Tree from './tree.js'
 
 class Chunk {

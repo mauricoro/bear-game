@@ -1,5 +1,7 @@
-import * as THREE from 'three'
-import * as TWEEN from '@tweenjs/tween.js'
+// import * as THREE from 'three'
+// import * as TWEEN from '@tweenjs/tween.js'
+import * as THREE from '../libraries/three/build/three.module.js'
+import * as TWEEN from '../libraries/@tweenjs/tween.js'
 import Platform from './platform.js'
 //  OVERVIEW
 //  This is a class which represents the player character within a video game and allows for it to be animated as it moves around.
