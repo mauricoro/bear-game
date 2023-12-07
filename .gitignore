@@ -1,2 +1,5 @@
 .vscode
 notes.txt
+node_modules
+!node_modules/@tweenjs/
+!node_modules/three/
