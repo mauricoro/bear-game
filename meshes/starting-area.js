@@ -1,5 +1,4 @@
-// import * as THREE from 'three'
-import * as THREE from '../libraries/three/build/three.module.js'
+import * as THREE from 'three'
 import Tree from './tree.js'
 
 //  Don't forget to return the grey borders on the map

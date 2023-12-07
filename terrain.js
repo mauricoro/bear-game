@@ -1,5 +1,4 @@
-// import * as THREE from 'three'
-import * as THREE from './libraries/three/build/three.module.js'
+import * as THREE from 'three'
 
 export function terrain() {
   const geometries = new Map()

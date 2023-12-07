@@ -1,5 +1,4 @@
-// import * as TWEEN from '@tweenjs/tween.js'
-import * as TWEEN from './libraries/@tweenjs/tween.js'
+import * as TWEEN from '@tweenjs/tween.js'
 import WebGL from 'three/addons/capabilities/WebGL.js'
 import Bear from './meshes/bear.js'
 import Chunk from './meshes/chunk.js'
