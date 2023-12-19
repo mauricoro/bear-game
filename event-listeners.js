@@ -6,16 +6,16 @@ export function setupListeners(character, matrix, scene, movementEnabled) {
   class Movement {
     constructor(keyDown, xVelocity, zVelocity, yRotation) {
       this.keyDown = keyDown
-      this.xVelocity = xVelocity
+      this.multiplier = this.xVelocity = xVelocity
       this.zVelocity = zVelocity
       this.yRotation = yRotation
     }
   }
-  //originally 0.04 before size swap
-  let w = new Movement(false, -0.03, 0, Math.PI)
-  let a = new Movement(false, 0, 0.03, (Math.PI * 3) / 2)
-  let s = new Movement(false, 0.03, 0, Math.PI * 2)
-  let d = new Movement(false, 0, -0.03, Math.PI / 2)
+  //originally 0.04 before size swap, 0.03
+  let w = new Movement(false, -1, 0, Math.PI)
+  let a = new Movement(false, 0, 1, (Math.PI * 3) / 2)
+  let s = new Movement(false, 1, 0, Math.PI * 2)
+  let d = new Movement(false, 0, -1, Math.PI / 2)
   let map = new Map()
   map.set('KeyW', w)
   map.set('KeyA', a)

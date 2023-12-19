@@ -16,32 +16,58 @@ class Chunk {
       geometries.get('block'),
     ]
     this.heights = [0, -0.1, 0]
-    this.matrix = []
+    // this.matrix = []
+    //  Creates 8 x 8 array of 0's
+    this.matrix = new Array(8).fill().map(() => new Array(8).fill(0))
 
     //  Choosing random positions
-    let riverIndex = parseInt(Math.floor(Math.random() * 8))
+    let rowShifts = [-1, 0, 1]
+    let riverRow = parseInt(Math.floor(Math.random() * 8))
+    let riverColumn = 0
+    let trees = 0
     let minDistance = 3
     let treeIndex =
-      (riverIndex +
+      (riverRow +
         minDistance +
         Math.floor(Math.random() * (8 - minDistance - 1))) %
       8
 
+    //  Creating dynamic rivers
+    while (riverColumn < 8) {
+      this.matrix[riverRow][riverColumn] = 1
+      if (riverColumn % 2 == 1) {
+        let newRow =
+          riverRow + rowShifts[parseInt(Math.round(Math.random() * 2))]
+        if (newRow > 7 || newRow < 0) {
+          newRow = riverRow
+        }
+        if (newRow != riverRow) {
+          this.matrix[newRow][riverColumn] = 1
+        }
+        riverRow = newRow
+      }
+      riverColumn++
+    }
+
+    while (trees < 2) {
+      const treeRow = parseInt(Math.floor(Math.random() * 8))
+      const treeColumn = parseInt(Math.floor(Math.random() * 8))
+      if (this.matrix[treeRow][treeColumn] == 0) {
+        this.matrix[treeRow][treeColumn] = 2
+        trees++
+      }
+    }
+
     //  Setting up matrix and meshes
     for (let i = 0; i < 8; i++) {
-      this.matrix[i] = []
+      // this.matrix[i] = []
       for (let j = 0; j < 8; j++) {
-        if (i == riverIndex) {
-          this.matrix[i][j] = 1
-        } else if (i == treeIndex && j == treeIndex) {
-          this.matrix[i][j] = 2
+        if (this.matrix[i][j] == 2) {
           let startingTree = new Tree(
             'z' + String(i + position) + 'x' + String(j)
           )
           startingTree.setPosition(-1 * j, 0, -1 * (i + position))
           startingTree.addToScene(scene)
-        } else {
-          this.matrix[i][j] = 0
         }
 
         let matrixValue = this.matrix[i][j]

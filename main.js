@@ -1,3 +1,4 @@
+import * as THREE from 'three'
 import * as TWEEN from '@tweenjs/tween.js'
 import WebGL from 'three/addons/capabilities/WebGL.js'
 import Bear from './meshes/bear.js'
@@ -44,7 +45,7 @@ function main() {
     return needResize
   }
 
-  const [w, a, s, d, map] = setupListeners(
+  let [w, a, s, d, map] = setupListeners(
     character,
     matrix,
     scene,
@@ -53,7 +54,7 @@ function main() {
 
   let distanceEdge = 32
   let cameraPosition = -4
-  let cameraSpeed = 0.8
+  let cameraSpeed = 0.4
   let lastTime = 0
 
   //Score
@@ -66,10 +67,27 @@ function main() {
   scene.add(light.target)
   light.target = character.getMesh()
 
+  const clock = new THREE.Clock()
+  let frameCount = 0
+  let maxFrames = 0
+  let previousTime = 0
   //From https://threejs.org/manual/#en/responsive
   function render(time) {
     TWEEN.update(time)
     time *= 0.001 // convert time to seconds
+    //  Refresh Rate Test
+    const delta = clock.getDelta()
+    frameCount++
+
+    if (Math.floor(time) > Math.floor(previousTime)) {
+      console.log(frameCount)
+      maxFrames = Math.max(maxFrames, frameCount)
+      character.setMultiplier(maxFrames)
+      frameCount = 0
+    }
+
+    previousTime = time
+
     let rotations = []
     let mesh = character.getMesh()
 
@@ -77,11 +95,13 @@ function main() {
       lastTime = time
       score.classList.add('fade-in')
     }
+
     // Render new chunks once distance is close
     if (distanceEdge + camera.position.z < 21) {
       console.log('increasing')
       cameraPosition = cameraPosition - (time - lastTime) * cameraSpeed
       lastTime = time
+      // cameraSpeed = cameraSpeed + 0.05
       cameraSpeed = cameraSpeed + 0.05
       distanceEdge += 8
       let newChunk = new Chunk(scene, distanceEdge, geometries, materials)
@@ -99,7 +119,7 @@ function main() {
     const [bx, by, bz] = character.getPosition()
     if (bz - camera.position.z > 10) {
       gameOver = true
-      console.log('gameover')
+      // console.log('gameover')
       // score.classList.add('game-over')
       score.style.left = '50%'
       score.style.top = '40%'
@@ -124,13 +144,13 @@ function main() {
       if (value.keyDown == true) {
         if (
           validPosition(
-            mesh.position.x + value.xVelocity * 10,
-            mesh.position.z + value.zVelocity * 10,
+            mesh.position.x + value.xVelocity * character.getMultiplier() * 10,
+            mesh.position.z + value.zVelocity * character.getMultiplier() * 10,
             matrix
           )
         ) {
-          mesh.position.x += value.xVelocity
-          mesh.position.z += value.zVelocity
+          mesh.position.x += value.xVelocity * character.getMultiplier()
+          mesh.position.z += value.zVelocity * character.getMultiplier()
         }
 
         rotations.push(value.yRotation)

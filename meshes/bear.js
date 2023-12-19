@@ -29,6 +29,9 @@ class Bear {
     this.platform.setPosition(1, 0.5, 0)
     this.platformMesh = this.platform.getMesh()
 
+    //  For movement distance to be correct
+    this.movementMultiplier = [0.072]
+
     //  Adding meshes and default tweens to each body part to control and style individually.
     //  A "start" and "end" tweens are needed for each part to complete an animation loop.
     bodyGroupNames.forEach((name) => {
@@ -275,6 +278,15 @@ class Bear {
   }
   removePlatform() {
     this.mesh.remove(this.platformMesh)
+  }
+
+  //Movement Multiplier Update
+  setMultiplier(frames) {
+    this.movementMultiplier[0] = 4.32 / frames
+  }
+
+  getMultiplier() {
+    return this.movementMultiplier
   }
 }
 

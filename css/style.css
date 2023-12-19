@@ -26,7 +26,8 @@ canvas {
   /* top: 10px;
   left: 10px; */
   top: 3%;
-  left: 5%;
+  left: 11%;
+  width: 20%;
   transform: translate(-50%, -50%);
   color: black;
   font-family: 'visitor', Arial, sans-serif;

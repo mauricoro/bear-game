@@ -73,11 +73,11 @@ export function setup() {
   let movementEnabled = [false]
 
   const tween = new TWEEN.Tween(camera.position)
-    .to(targetPosition, 2000)
+    .to(targetPosition, 3000)
     .easing(TWEEN.Easing.Quadratic.InOut)
 
   const tween2 = new TWEEN.Tween(targetObject.position)
-    .to(targetView, 2000)
+    .to(targetView, 3000)
     .onUpdate(() => {
       camera.lookAt(targetObject.position)
     })
@@ -87,7 +87,7 @@ export function setup() {
     })
 
   const tween3 = new TWEEN.Tween(light.position)
-    .to(lightTarget, 2000)
+    .to(lightTarget, 3000)
     .easing(TWEEN.Easing.Quadratic.InOut)
 
   startButton.addEventListener('click', function () {
