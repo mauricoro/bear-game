@@ -25,7 +25,14 @@ class StartingArea {
         if (i == 5 && j == 5) {
           //  Creates the first tree next to the player
           this.matrix[i][j] = 2
-          let startingTree = new Tree('z' + String(i) + 'x' + String(j))
+          let startingTree = new Tree(
+            'z' + String(i) + 'x' + String(j),
+            scene,
+            i,
+            j,
+            geometries,
+            materials
+          )
           startingTree.setPosition(-j, 0, -i)
           startingTree.addToScene(scene)
         } else {

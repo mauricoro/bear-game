@@ -49,7 +49,9 @@ function main() {
     character,
     matrix,
     scene,
-    movementEnabled
+    movementEnabled,
+    geometries,
+    materials
   )
 
   let distanceEdge = 32

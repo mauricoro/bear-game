@@ -1,8 +1,16 @@
 import Platform from './meshes/platform.js'
+import { explode } from './meshes/explosion.js'
 import Terrain from './terrain.js'
 import Bear from './meshes/bear.js'
 import { AudioContext } from 'three'
-export function setupListeners(character, matrix, scene, movementEnabled) {
+export function setupListeners(
+  character,
+  matrix,
+  scene,
+  movementEnabled,
+  geometries,
+  materials
+) {
   class Movement {
     constructor(keyDown, xVelocity, zVelocity, yRotation) {
       this.keyDown = keyDown
@@ -36,17 +44,22 @@ export function setupListeners(character, matrix, scene, movementEnabled) {
     if (event.code == 'Space' && movementEnabled[0]) {
       if (character.notDashing()) {
         dashmultiplier = validDash(matrix.getMatrix(), character)
+        // console.log(dashmultiplier)
         let [treez, treex] = treeInPath(
           matrix.getMatrix(),
           character,
           dashmultiplier
         )
+        // console.log(treez + ' ' + treex)
         if (treez) {
           const foundGroup = scene.getObjectByName(
             'z' + String(treez) + 'x' + String(treex)
           )
           matrix.setValue(treez, treex, 3)
+
+          console.log(foundGroup)
           scene.remove(foundGroup)
+          explode(scene, geometries, materials, treex, treez)
           let testingplatform = new Platform(
             'z' + String(treez) + 'x' + String(treex),
             treez,
@@ -147,7 +160,10 @@ function treeInPath(matrix, entity, dashmultiplier) {
   let mesh = entity.getMesh()
   let x = mesh.position.x
   let z = mesh.position.z
-  const multipliers = [0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8]
+
+  //  Adding the 0.4 to check in front of the end of the dash
+  dashmultiplier += 0.4
+  const multipliers = [0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2]
 
   let rotation = entity.getRotation()
 
@@ -173,7 +189,7 @@ function validDashPosition(x, z, matrix) {
     Math.round(-1 * x) > -1 &&
     Math.round(-1 * z) < matrix.length &&
     Math.round(-1 * z) > -1 &&
-    matrix[Math.round(-1 * z)][Math.round(-1 * x)] != 1
+    matrix[Math.round(-1 * z)][Math.round(-1 * x)] == 0
   ) {
     // matrix[Math.round(-1 * z)][Math.round(-1 * x)] = 0
     return true

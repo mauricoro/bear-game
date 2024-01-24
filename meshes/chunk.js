@@ -8,7 +8,7 @@ class Chunk {
     this.materials = [
       materials.get('grass'),
       materials.get('water'),
-      materials.get('dirt'),
+      materials.get('grass'), //changed to grass but was originally dirt
     ]
     this.geometries = [
       geometries.get('block'),
@@ -63,8 +63,14 @@ class Chunk {
       // this.matrix[i] = []
       for (let j = 0; j < 8; j++) {
         if (this.matrix[i][j] == 2) {
+          console.log(geometries)
           let startingTree = new Tree(
-            'z' + String(i + position) + 'x' + String(j)
+            'z' + String(i + position) + 'x' + String(j),
+            scene,
+            i + position,
+            j,
+            geometries,
+            materials
           )
           startingTree.setPosition(-1 * j, 0, -1 * (i + position))
           startingTree.addToScene(scene)

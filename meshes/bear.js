@@ -220,7 +220,7 @@ class Bear {
           x: this.mesh.position.x + multiplier * Math.cos(this.rot),
           z: this.mesh.position.z + multiplier * -1 * Math.sin(this.rot),
         },
-        800
+        800 * (multiplier / 2.4)
       )
       .onUpdate((coords) => {
         this.mesh.position.x = coords.x
@@ -228,6 +228,8 @@ class Bear {
       })
       .easing(TWEEN.Easing.Exponential.Out)
     this.tween.start()
+
+    //  Ends Tween early to allow movement within 3 seconds after dashing
     setTimeout(() => {
       this.endDash()
     }, 300)
